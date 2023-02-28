@@ -1,5 +1,7 @@
 package com.eddicorp.http.request;
 
+import java.util.Arrays;
+
 public enum HttpMethod {
     OPTIONS,
     GET,
@@ -9,5 +11,9 @@ public enum HttpMethod {
     HEAD,
     TRACE,
     CONNECT,
-    PATCH
+    PATCH;
+
+    public static HttpMethod find(String value) {
+        return Arrays.stream(HttpMethod.values()).filter(httpMethod -> httpMethod.name().equals(value)).findFirst().orElse(null);
+    }
 }

@@ -21,9 +21,25 @@ public class HttpRequest {
     private final byte[] rawBody;
 
     public HttpRequest(final InputStream inputStream) throws IOException {
-        this.uri = "";
-        this.httpMethod = HttpMethod.GET;
-        this.rawBody = new byte[0];
+
+        final String request = new String(inputStream.readAllBytes());
+        final String[] lines = request.split("\r\n");
+        final String requestLine = lines[0];
+        final String[] partsOfRequestLines = requestLine.split(" ");
+
+        this.httpMethod = HttpMethod.find(partsOfRequestLines[0]);
+        this.uri = partsOfRequestLines[1];
+        this.rawBody = lines[lines.length -1].getBytes();
+
+        for (int i=1; i < lines.length; i++) {
+
+            final String headerValue = lines[i];
+            if("".equals(headerValue)) {
+                break;
+            }
+            final String[] nameAndValue = headerValue.split(":");
+            headerMap.put(nameAndValue[0].trim(), nameAndValue[1].trim());
+        }
     }
 
     public String getUri() {
@@ -32,6 +48,10 @@ public class HttpRequest {
 
     public HttpMethod getHttpMethod() {
         return httpMethod;
+    }
+
+    public String getRawBody() {
+        return new String(rawBody);
     }
 
     public String getParameter(String parameterName) {

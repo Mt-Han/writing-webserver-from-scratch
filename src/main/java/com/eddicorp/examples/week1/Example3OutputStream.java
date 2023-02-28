@@ -1,17 +1,12 @@
 package com.eddicorp.examples.week1;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 public class Example3OutputStream {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         final String response =
                 "HTTP/1.1 200 OK\r\n" +
                         "Content-Type: text/html; charset=UTF-8\r\n" +
@@ -41,6 +36,13 @@ public class Example3OutputStream {
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+
+    public static class Output {
+        public URL getResource(String path) {
+            return this.getClass().getClassLoader().getResource(path);
         }
     }
 }

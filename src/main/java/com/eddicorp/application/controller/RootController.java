@@ -18,6 +18,9 @@ public class RootController implements Controller {
 
     @Override
     public void handle(HttpRequest request, HttpResponse response) {
+
+        System.out.println(request.getRawBody());
+        System.out.println(request.getRawBody().split("\r\n")[0]);
         final String uri = request.getUri();
         final RequestMapper requestMapper = new RequestMapper(uri, request.getHttpMethod());
         final Controller maybeController = requestMap.get(requestMapper);
