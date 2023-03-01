@@ -1,5 +1,6 @@
 package com.eddicorp.http.response;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +25,11 @@ public class HttpResponse {
         responseHeaders.put(headerName, headerValue);
     }
 
+    public OutputStream getOutputStream() {
+        return outputStream;
+    }
+
     public void renderResponseWithBody(byte[] rawBody) {
+
     }
 }

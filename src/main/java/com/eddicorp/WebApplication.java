@@ -15,13 +15,14 @@ public class WebApplication {
         final ThreadPoolExecutor executor = new ThreadPoolExecutor(
                 8,
                 16,
-                1,
+                10000,
                 TimeUnit.MINUTES,
                 new ArrayBlockingQueue<>(500)
         );
 
         final ServerSocket serverSocket = new ServerSocket(8080);
         Socket clientSocket;
+        System.out.println("start");
         while ((clientSocket = serverSocket.accept()) != null) {
             final HandleClientRequestTask task = new HandleClientRequestTask(clientSocket);
             executor.execute(task);

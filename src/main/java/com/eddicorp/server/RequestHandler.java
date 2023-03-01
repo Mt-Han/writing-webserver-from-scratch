@@ -4,8 +4,10 @@ import com.eddicorp.application.controller.RootController;
 import com.eddicorp.http.request.HttpRequest;
 import com.eddicorp.http.response.HttpResponse;
 
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
 public class RequestHandler {
 
@@ -15,6 +17,11 @@ public class RequestHandler {
         try {
             final HttpRequest httpRequest = new HttpRequest(inputStream);
             final HttpResponse httpResponse = new HttpResponse(outputStream);
+
+            if(httpRequest.getUri() == null) {
+                return;
+            }
+
             rootController.handle(httpRequest, httpResponse);
         } catch (Throwable e) {
             throw new Throwable(e);

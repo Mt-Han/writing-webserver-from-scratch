@@ -2,8 +2,13 @@ package com.eddicorp.http.request;
 
 import com.eddicorp.http.session.HttpSession;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Array;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,28 +23,72 @@ public class HttpRequest {
 
     private final Map<String, Cookie> cookieMap = new HashMap<>();
 
-    private final byte[] rawBody;
+    private byte[] rawBody;
 
     public HttpRequest(final InputStream inputStream) throws IOException {
 
-        final String request = new String(inputStream.readAllBytes());
-        final String[] lines = request.split("\r\n");
-        final String requestLine = lines[0];
-        final String[] partsOfRequestLines = requestLine.split(" ");
-
-        this.httpMethod = HttpMethod.find(partsOfRequestLines[0]);
-        this.uri = partsOfRequestLines[1];
-        this.rawBody = lines[lines.length -1].getBytes();
-
-        for (int i=1; i < lines.length; i++) {
-
-            final String headerValue = lines[i];
-            if("".equals(headerValue)) {
-                break;
-            }
-            final String[] nameAndValue = headerValue.split(":");
-            headerMap.put(nameAndValue[0].trim(), nameAndValue[1].trim());
+        if(inputStream.available() == 0) {
+            uri = null;
+            httpMethod = null;
+            return;
         }
+
+        final String request = readLine(inputStream);
+        System.out.println(request);
+        String[] requestInfo = request.split(" ");
+
+        this.httpMethod = HttpMethod.find(requestInfo[0]);
+        this.uri = requestInfo[1];
+
+        while (inputStream.available() > 0) {
+
+            String headerLine = readLine(inputStream);
+
+            if("".equals(headerLine)) {
+                continue;
+            }
+
+            String[] headerValues = headerLine.split(":");
+            headerMap.put(headerValues[0].trim(), headerValues[1].trim());
+
+            if(headerMap.containsKey("Content-Length")) {
+                setRawBody(inputStream);
+            }
+        }
+    }
+
+    private void setRawBody(InputStream inputStream) throws IOException {
+
+        int readCount = Integer.parseInt(headerMap.get("Content-Length"));
+
+        if(inputStream.available() == readCount + 2) {
+            readLine(inputStream);
+            if(inputStream.available() > 0) {
+
+                byte[] buffer = new byte[8];
+                buffer = Arrays.copyOf(buffer, readCount);
+
+                inputStream.read(buffer);
+                this.rawBody = buffer;
+            }
+        }
+    }
+
+    private static String readLine(InputStream inputStream) throws IOException {
+        final StringBuilder stringBuilder = new StringBuilder();
+        int readCharacter;
+        while ((readCharacter = inputStream.read()) != -1) {
+            final char currentChar = (char) readCharacter;
+            if (currentChar == '\r') {
+                if (((char) inputStream.read()) == '\n') {
+                    return stringBuilder.toString();
+                } else {
+                    throw new IllegalStateException("Invalid HTTP request.");
+                }
+            }
+            stringBuilder.append(currentChar);
+        }
+        throw new IllegalStateException("Unable to find CRLF");
     }
 
     public String getUri() {
@@ -50,8 +99,8 @@ public class HttpRequest {
         return httpMethod;
     }
 
-    public String getRawBody() {
-        return new String(rawBody);
+    public String getHeader(String header) {
+        return headerMap.get(header);
     }
 
     public String getParameter(String parameterName) {
@@ -64,5 +113,17 @@ public class HttpRequest {
 
     public HttpSession getSession(boolean create) {
         return null;
+    }
+
+    @Override
+    public String toString() {
+        return "HttpRequest{" +
+                "uri='" + uri + '\'' +
+                ", httpMethod=" + httpMethod +
+                ", headerMap=" + headerMap +
+                ", parameterMap=" + parameterMap +
+                ", cookieMap=" + cookieMap +
+                ", rawBody=" + Arrays.toString(rawBody) +
+                '}';
     }
 }

@@ -14,6 +14,12 @@ public enum HttpMethod {
     PATCH;
 
     public static HttpMethod find(String value) {
-        return Arrays.stream(HttpMethod.values()).filter(httpMethod -> httpMethod.name().equals(value)).findFirst().orElse(null);
+
+        for (HttpMethod httpMethod : HttpMethod.values()) {
+            if(httpMethod.name().equals(value)) {
+                return httpMethod;
+            }
+        }
+        throw new IllegalStateException("Unable to find HTTPMETHOD");
     }
 }
