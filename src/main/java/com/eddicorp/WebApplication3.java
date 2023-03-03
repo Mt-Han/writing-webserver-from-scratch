@@ -2,7 +2,6 @@ package com.eddicorp;
 
 import com.eddicorp.application.service.posts.Post;
 import com.eddicorp.examples.week1.Example3OutputStream;
-import com.eddicorp.model.Posts;
 import com.samskivert.mustache.Mustache;
 import com.samskivert.mustache.Template;
 
@@ -45,13 +44,13 @@ public class WebApplication3 {
             Template template = compiler.compile(new String(responseBytes2));
 
 
-            List<Posts> posts = new ArrayList<>();
-            posts.add(new Posts("title1", "autor1", "content1"));
-            posts.add(new Posts("title2", "autor2", "content2"));
-            posts.add(new Posts("title3", "autor3", "content3"));
+//            List<Posts> posts = new ArrayList<>();
+//            posts.add(new Posts("title1", "autor1", "content1"));
+//            posts.add(new Posts("title2", "autor2", "content2"));
+//            posts.add(new Posts("title3", "autor3", "content3"));
 
             Map<String, Object> context = new HashMap<>();
-            context.put("posts", posts);
+//            context.put("posts", posts);
             context.put("isLoggedIn", "123");
 
             String t = template.execute(context);

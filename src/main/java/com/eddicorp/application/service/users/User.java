@@ -2,8 +2,12 @@ package com.eddicorp.application.service.users;
 
 public class User {
 
-    private final String username;
-    private final String password;
+    private String username;
+    private String password;
+
+    public User() {
+
+    }
 
     public User(String username, String password) {
         this.username = username;

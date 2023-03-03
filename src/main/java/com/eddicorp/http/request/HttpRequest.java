@@ -1,12 +1,15 @@
 package com.eddicorp.http.request;
 
+import com.eddicorp.application.util.ParseUtil;
 import com.eddicorp.http.session.HttpSession;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Array;
+import java.net.HttpCookie;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -23,7 +26,7 @@ public class HttpRequest {
 
     private final Map<String, Cookie> cookieMap = new HashMap<>();
 
-    private byte[] rawBody;
+    private byte[] rawBody = new byte[0];
 
     public HttpRequest(final InputStream inputStream) throws IOException {
 
@@ -45,33 +48,62 @@ public class HttpRequest {
             String headerLine = readLine(inputStream);
 
             if("".equals(headerLine)) {
+                setRawBody(inputStream);
+                return;
+            }
+
+            String[] headerValues = headerLine.split(": ");
+            System.out.println(headerLine);
+            if(headerValues[0].trim().equals("Cookie")) {
+                String[] cookies = headerValues[1].split(";");
+                for (String cookieSpecialty : cookies) {
+                    if(!cookieSpecialty.trim().equals("null")) {
+                        System.out.println(cookieSpecialty);
+                        String[] cookie = cookieSpecialty.trim().split("=");
+                        cookieMap.put(cookie[0], new Cookie(cookie[0], cookie[1]));
+                    }
+                }
                 continue;
             }
 
-            String[] headerValues = headerLine.split(":");
             headerMap.put(headerValues[0].trim(), headerValues[1].trim());
-
-            if(headerMap.containsKey("Content-Length")) {
-                setRawBody(inputStream);
-            }
         }
     }
 
     private void setRawBody(InputStream inputStream) throws IOException {
 
+        if(!headerMap.containsKey("Content-Length") || inputStream.available() == 0) {
+            return;
+        }
+
         int readCount = Integer.parseInt(headerMap.get("Content-Length"));
 
-        if(inputStream.available() == readCount + 2) {
-            readLine(inputStream);
-            if(inputStream.available() > 0) {
+        if(inputStream.available() == readCount) {
 
-                byte[] buffer = new byte[8];
-                buffer = Arrays.copyOf(buffer, readCount);
+            byte[] buffer = new byte[8];
+            buffer = Arrays.copyOf(buffer, readCount);
 
-                inputStream.read(buffer);
-                this.rawBody = buffer;
+            inputStream.read(buffer);
+            this.rawBody = buffer;
+
+            System.out.println(new String(rawBody));
+            String contentType = headerMap.get("Content-Type");
+            ObjectMapper mapper = new ObjectMapper();
+
+            if(contentType == null) {
+                return;
+            }
+
+            switch (headerMap.get("Content-Type")) {
+                case "application/x-www-form-urlencoded" :
+                    parameterMap.putAll(ParseUtil.xFormUrlEncoded(new String(rawBody)));
+                    break;
+                case "application/json" :
+                    parameterMap.putAll(mapper.readValue(new String(rawBody), Map.class));
+                    break;
             }
         }
+
     }
 
     private static String readLine(InputStream inputStream) throws IOException {
@@ -115,15 +147,11 @@ public class HttpRequest {
         return null;
     }
 
-    @Override
-    public String toString() {
-        return "HttpRequest{" +
-                "uri='" + uri + '\'' +
-                ", httpMethod=" + httpMethod +
-                ", headerMap=" + headerMap +
-                ", parameterMap=" + parameterMap +
-                ", cookieMap=" + cookieMap +
-                ", rawBody=" + Arrays.toString(rawBody) +
-                '}';
+    public Map<String, Cookie> getCookieMap() {
+        return cookieMap;
+    }
+
+    public Cookie getCookie(String name) {
+        return cookieMap.get(name);
     }
 }

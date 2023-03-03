@@ -23,6 +23,7 @@ public class RequestHandler {
             }
 
             rootController.handle(httpRequest, httpResponse);
+            httpResponse.write();
         } catch (Throwable e) {
             throw new Throwable(e);
         }

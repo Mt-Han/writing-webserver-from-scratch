@@ -2,10 +2,10 @@ package com.eddicorp.application.controller;
 
 import com.eddicorp.http.request.HttpRequest;
 import com.eddicorp.http.response.HttpResponse;
+import com.eddicorp.http.response.HttpStatus;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 
 public class StaticFileController implements Controller {
@@ -27,15 +27,8 @@ public class StaticFileController implements Controller {
             case "css" : contentType = "text/css; charset=UTF-8"; break;
         }
 
-        final byte[] contents = fis.readAllBytes();
-
-        final String responseMeta =
-                "HTTP/1.1 200 OK\r\n" +
-                        "Content-Type: " + contentType + "\r\n" +
-                        "Content-Length: " + contents.length +
-                        "\r\n" +
-                        "\r\n" + new String(contents);
-        response.getOutputStream().write(responseMeta.getBytes(StandardCharsets.UTF_8), 0, responseMeta.getBytes(StandardCharsets.UTF_8).length);
-        response.getOutputStream().flush();
+        response.setStatus(HttpStatus.OK);
+        response.setHeader("Content-Type", contentType);
+        response.setContents(fis.readAllBytes());
     }
 }
