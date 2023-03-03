@@ -6,6 +6,7 @@ import com.eddicorp.application.service.posts.PostServiceImpl;
 import com.eddicorp.application.service.users.User;
 import com.eddicorp.application.service.users.UserService;
 import com.eddicorp.application.service.users.UserServiceImpl;
+import com.eddicorp.application.session.SessionManager;
 import com.eddicorp.application.util.ParseUtil;
 import com.eddicorp.application.util.PrincipalHelper;
 import com.eddicorp.examples.week1.Example3OutputStream;
@@ -67,6 +68,7 @@ public class GetController implements Controller {
 
 	public void logout(HttpRequest request, HttpResponse response) {
 
+		SessionManager.removeSession(PrincipalHelper.getSession().getId());
 		Cookie cookie = new Cookie("user", null);
 
 		response.setHeader("Set-Cookie", cookie.toString());

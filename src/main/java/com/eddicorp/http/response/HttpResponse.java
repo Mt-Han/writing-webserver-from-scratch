@@ -54,6 +54,10 @@ public class HttpResponse {
         outputStream.flush();
     }
 
+    public HttpStatus getHttpStatus() {
+        return httpStatus;
+    }
+
     public OutputStream getOutputStream() {
         return outputStream;
     }

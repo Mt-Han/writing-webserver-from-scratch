@@ -1,5 +1,6 @@
 package com.eddicorp.server;
 
+import com.eddicorp.application.util.PrincipalHelper;
 import com.eddicorp.http.request.HttpRequest;
 import com.eddicorp.http.response.HttpResponse;
 
@@ -26,9 +27,9 @@ public class HandleClientRequestTask implements Runnable {
                 final OutputStream outputStream = clientSocket.getOutputStream();
         ) {
             requestHandler.handle(inputStream, outputStream);
+            PrincipalHelper.close();
         } catch (Throwable throwable) {
             throwable.printStackTrace();
-            System.out.println("error" + throwable);
             System.err.println(throwable);
         }
     }

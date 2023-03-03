@@ -53,12 +53,10 @@ public class HttpRequest {
             }
 
             String[] headerValues = headerLine.split(": ");
-            System.out.println(headerLine);
             if(headerValues[0].trim().equals("Cookie")) {
                 String[] cookies = headerValues[1].split(";");
                 for (String cookieSpecialty : cookies) {
                     if(!cookieSpecialty.trim().equals("null")) {
-                        System.out.println(cookieSpecialty);
                         String[] cookie = cookieSpecialty.trim().split("=");
                         cookieMap.put(cookie[0], new Cookie(cookie[0], cookie[1]));
                     }
@@ -86,7 +84,6 @@ public class HttpRequest {
             inputStream.read(buffer);
             this.rawBody = buffer;
 
-            System.out.println(new String(rawBody));
             String contentType = headerMap.get("Content-Type");
             ObjectMapper mapper = new ObjectMapper();
 

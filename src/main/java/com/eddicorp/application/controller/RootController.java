@@ -1,11 +1,16 @@
 package com.eddicorp.application.controller;
 
 import com.eddicorp.application.service.users.User;
+import com.eddicorp.application.service.users.UserService;
+import com.eddicorp.application.service.users.UserServiceImpl;
+import com.eddicorp.application.session.Session;
+import com.eddicorp.application.session.SessionManager;
 import com.eddicorp.application.util.PrincipalHelper;
 import com.eddicorp.http.request.Cookie;
 import com.eddicorp.http.request.HttpMethod;
 import com.eddicorp.http.request.HttpRequest;
 import com.eddicorp.http.response.HttpResponse;
+import com.eddicorp.http.response.HttpStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.FileInputStream;
@@ -24,6 +29,7 @@ public class RootController implements Controller {
     private final Controller notFoundController = new NotFoundController();
     private final Controller getController = new GetController();
     private final Controller postController = new PostController();
+    private final UserService userService = new UserServiceImpl();
 
     public RootController() {
         requestMap.put(new RequestMapper("/", HttpMethod.GET), getController);
@@ -44,15 +50,19 @@ public class RootController implements Controller {
 
             Cookie cookie = request.getCookie("user");
             if(cookie != null && !cookie.getValue().equals("null")) {
-                ObjectMapper mapper = new ObjectMapper();
-                User user = mapper.readValue(cookie.getValue(), User.class);
-                PrincipalHelper.setUser(user);
+                Session session = SessionManager.getSession(cookie.getValue());
+                if(session != null) {
+                    PrincipalHelper.setSession(session);
+                    PrincipalHelper.setUser(userService.findByUsername(session.getAttribute("username").toString()));
+                }
             }
 
             // handle application API
             if (maybeController != null) {
                 maybeController.handle(request, response);
-                return;
+                if(response.getHttpStatus() != null) {
+                    return;
+                }
             }
 
             // handle static files
@@ -60,7 +70,9 @@ public class RootController implements Controller {
             final URL maybeResource = this.getClass().getClassLoader().getResource(pathToLoad);
             if (maybeResource != null) {
                 staticFileController.handle(request, response);
-                return;
+                if(response.getHttpStatus() != null) {
+                    return;
+                }
             }
 
             notFoundController.handle(request, response);

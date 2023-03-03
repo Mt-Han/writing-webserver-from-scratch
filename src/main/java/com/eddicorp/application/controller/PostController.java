@@ -5,6 +5,8 @@ import com.eddicorp.application.service.posts.PostServiceImpl;
 import com.eddicorp.application.service.users.User;
 import com.eddicorp.application.service.users.UserService;
 import com.eddicorp.application.service.users.UserServiceImpl;
+import com.eddicorp.application.session.Session;
+import com.eddicorp.application.session.SessionManager;
 import com.eddicorp.application.util.ParseUtil;
 import com.eddicorp.application.util.PrincipalHelper;
 import com.eddicorp.http.request.Cookie;
@@ -36,18 +38,9 @@ public class PostController implements Controller {
 		}
 	}
 
-	private void notFound(HttpRequest request, HttpResponse response) {
-		try {
-			new NotFoundController().handle(request, response);
-		}catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
 	private void addPost(HttpRequest request, HttpResponse response) {
 
 		if(!PrincipalHelper.isLoggedIn()) {
-			notFound(request, response);
 			return;
 		}
 
@@ -79,16 +72,17 @@ public class PostController implements Controller {
 		User user = userService.findByUsername(request.getParameter("username"));
 
 		if(user == null) {
-			notFound(request, response);
 			return;
 		}
 
 		if(!user.getPassword().equals(request.getParameter("password"))) {
-			notFound(request, response);
 			return;
 		}
 
-		Cookie cookie = new Cookie("user", ParseUtil.ObjectToJson(user));
+		Session session = SessionManager.createSession();
+		session.setAttribute("username", user.getUsername());
+
+		Cookie cookie = new Cookie("user", session.getId());
 
 		response.setStatus(HttpStatus.FOUND);
 		response.setHeader("Set-Cookie", cookie.toString());
