@@ -63,7 +63,7 @@ public class PostController implements Controller {
 		userService.signUp(username, password);
 
 		response.setStatus(HttpStatus.FOUND);
-		response.setHeader("Location", "/");
+		response.setHeader("Location", "/login.html");
 		response.setHeader("Content-Type","text/html;charset=UTF-8");
 	}
 

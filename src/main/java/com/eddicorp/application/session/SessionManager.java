@@ -7,7 +7,7 @@ import java.util.UUID;
 /**
  * @since       2023.03.03
  * @author      martin
- * @description session helper
+ * @description session manager
  **********************************************************************************************************************/
 public class SessionManager {
 

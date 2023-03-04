@@ -1,6 +1,5 @@
 package com.eddicorp.application.controller;
 
-import com.eddicorp.application.service.users.User;
 import com.eddicorp.application.service.users.UserService;
 import com.eddicorp.application.service.users.UserServiceImpl;
 import com.eddicorp.application.session.Session;
@@ -10,13 +9,9 @@ import com.eddicorp.http.request.Cookie;
 import com.eddicorp.http.request.HttpMethod;
 import com.eddicorp.http.request.HttpRequest;
 import com.eddicorp.http.response.HttpResponse;
-import com.eddicorp.http.response.HttpStatus;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;

@@ -20,6 +20,6 @@ public class Cookie {
 
     @Override
     public String toString() {
-        return name + "=" + value;
+        return name + "=" + value + ";" + " Expires=86400; Domain=localhost; Path=/; HttpOnly";
     }
 }
